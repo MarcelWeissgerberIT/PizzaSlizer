@@ -27,7 +27,12 @@ A mobile game for the browser: slice the pizza into **perfectly equal pieces** b
 
 Levels unlock one after another (at least 1 star). Progress is stored locally in the browser.
 
-## Run it
+## Play online
+
+The game is deployed with GitHub Pages on every push:
+**https://marcelweissgerberit.github.io/PizzaSlizer/**
+
+## Run it locally
 
 There is no build step. Start any static web server:
 
