@@ -7,7 +7,7 @@ const PIZZAS = {
   funghi:     { name: 'Funghi',           file: 'assets/pizzas/funghi.webp',     color: '#a56b3c' },
   hawaii:     { name: 'Hawaii',           file: 'assets/pizzas/hawaii.webp',     color: '#f2b632' },
   formaggi:   { name: 'Quattro Formaggi', file: 'assets/pizzas/formaggi.webp',   color: '#f0c96a' },
-  veggie:     { name: 'Verdura',          file: 'assets/pizzas/veggie.webp',     color: '#5aa843' },
+  veggie:     { name: 'Veggie',           file: 'assets/pizzas/veggie.webp',     color: '#5aa843' },
   diavola:    { name: 'Diavola',          file: 'assets/pizzas/diavola.webp',    color: '#b3141c' },
   dolce:      { name: 'Dolce',            file: 'assets/pizzas/dolce.webp',      color: '#7a3e2a' },
 };

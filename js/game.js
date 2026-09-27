@@ -192,13 +192,13 @@
       showScreen('screen-game');
       $('#result').classList.remove('show');
       if (index === 0 && Progress.get(0).stars === 0) {
-        this.toast('Wische quer über die Pizza – genau durch die Mitte!', 3200);
+        this.toast('Swipe across the pizza – right through the center!', 3200);
       } else if (this.level.rotate && !this.seenRotate) {
         this.seenRotate = true;
-        this.toast('Achtung, die Pizza dreht sich!', 2200);
+        this.toast('Watch out, the pizza is spinning!', 2200);
       } else if (this.level.drift && !this.seenDrift) {
         this.seenDrift = true;
-        this.toast('Die Pizza schwebt – bleib dran!', 2200);
+        this.toast('The pizza is drifting – stay on it!', 2200);
       }
     },
 
@@ -229,17 +229,17 @@
       const A = dx * dx + dy * dy;
       const C = a.x * a.x + a.y * a.y - R * R;
       const disc = fa * fa - A * C;
-      if (disc <= 0) { this.reject('Daneben!'); return; }
+      if (disc <= 0) { this.reject('Missed!'); return; }
       const sq = Math.sqrt(disc);
       const t1 = (-fa - sq) / A, t2 = (-fa + sq) / A;
       const covered = clamp(Math.min(1, t2) - Math.max(0, t1), 0, t2 - t1) / (t2 - t1);
-      if (covered < 0.72) { this.reject('Ganz durchziehen!'); return; }
+      if (covered < 0.72) { this.reject('Swipe all the way through!'); return; }
       const line = lineFromPoints(a, b);
-      if (Math.abs(line.d) > R * 0.9) { this.reject('Zu weit am Rand!'); return; }
+      if (Math.abs(line.d) > R * 0.9) { this.reject('Too close to the edge!'); return; }
       // Nahezu identische Schnitte nicht doppelt zählen
       for (const c of this.cuts) {
         const da = Math.abs(((c.a - line.a) + Math.PI / 2 + Math.PI) % Math.PI - Math.PI / 2);
-        if (da < 0.04 && Math.abs(Math.abs(c.d) - Math.abs(line.d)) < R * 0.04) { this.reject('Da ist schon ein Schnitt!'); return; }
+        if (da < 0.04 && Math.abs(Math.abs(c.d) - Math.abs(line.d)) < R * 0.04) { this.reject('Already cut there!'); return; }
       }
       this.cuts.push(line);
       this.flash = 1;
@@ -467,8 +467,8 @@
     const lv = Game.level;
     $('#hud-level').textContent = `Level ${Game.levelIndex + 1}`;
     $('#hud-pizza').textContent = PIZZAS[lv.pizza].name;
-    $('#hud-goal').textContent = `${lv.slices} Stücke`;
-    $('#hud-cuts').textContent = `Schnitt ${Game.cuts.length}/${Game.cutsNeeded}`;
+    $('#hud-goal').textContent = `${lv.slices} slices`;
+    $('#hud-cuts').textContent = `Cut ${Game.cuts.length}/${Game.cutsNeeded}`;
   }
   function updateTimer() {
     const frac = clamp(Game.timeLeft / Game.level.time, 0, 1);
@@ -481,11 +481,11 @@
   // ---------- Ergebnis ----------
   function showResult(r) {
     const el = $('#result');
-    $('#res-title').textContent = r.timeout && !r.complete ? 'Zeit abgelaufen!'
-      : r.stars === 3 ? 'Perfetto!' : r.stars === 2 ? 'Bravo!' : r.stars === 1 ? 'Geschafft!' : 'Zu ungleich!';
+    $('#res-title').textContent = r.timeout && !r.complete ? 'Time\'s up!'
+      : r.stars === 3 ? 'Perfetto!' : r.stars === 2 ? 'Bravo!' : r.stars === 1 ? 'Nice cut!' : 'Too uneven!';
     $('#res-accuracy').textContent = (r.accuracy * 100).toFixed(1) + '%';
-    $('#res-score').textContent = r.score.toLocaleString('de-DE');
-    $('#res-bonus').textContent = r.timeBonus ? `+${r.timeBonus} Zeitbonus` : '';
+    $('#res-score').textContent = r.score.toLocaleString('en-US');
+    $('#res-bonus').textContent = r.timeBonus ? `+${r.timeBonus} time bonus` : '';
     const stars = $$('#res-stars span');
     stars.forEach((s, i) => {
       s.classList.remove('on');
@@ -524,7 +524,7 @@
       card.disabled = !unlocked;
       card.innerHTML = `
         <div class="num">${i + 1}</div>
-        <div class="meta">${lv.slices} Stücke · ${lv.time}s</div>
+        <div class="meta">${lv.slices} slices · ${lv.time}s</div>
         <div class="stars">${'★'.repeat(p.stars)}${'☆'.repeat(3 - p.stars)}</div>
         ${lv.rotate ? '<div class="tag">↻</div>' : ''}${lv.drift ? '<div class="tag">〰</div>' : ''}
         ${unlocked ? '' : '<div class="lock">🔒</div>'}`;
@@ -573,7 +573,7 @@
     $('#btn-next').addEventListener('click', () => { Sfx.tap(); Game.start(Game.levelIndex + 1); });
     $('#btn-levels').addEventListener('click', () => { Sfx.tap(); leaveGame(); });
     $('#btn-reset').addEventListener('click', () => {
-      if (confirm('Gesamten Fortschritt wirklich löschen?')) { Progress.reset(); buildLevelGrid(); updateTitleStars(); }
+      if (confirm('Really delete all progress?')) { Progress.reset(); buildLevelGrid(); updateTitleStars(); }
     });
     const mute = $('#btn-mute');
     const syncMute = () => { mute.textContent = Sfx.isMuted() ? '🔇' : '🔊'; };

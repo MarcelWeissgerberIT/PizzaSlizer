@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -23,7 +23,7 @@
     <div class="panel center">
       <div class="spinner">🍕</div>
       <div class="load-track"><div id="load-bar"></div></div>
-      <p>Pizza wird belegt …</p>
+      <p>Topping the pizza …</p>
     </div>
   </section>
 
@@ -31,12 +31,12 @@
   <section id="screen-title" class="screen">
     <div class="title-wrap">
       <img id="logo" alt="Pizza Slizer" draggable="false">
-      <p class="tagline">Schneide exakt. Schneide schnell.</p>
-      <button id="btn-play" class="btn big">Spielen</button>
+      <p class="tagline">Slice precisely. Slice fast.</p>
+      <button id="btn-play" class="btn big">Play</button>
       <div id="title-stars" class="stars-total"></div>
       <div class="title-footer">
-        <button id="btn-mute" class="btn icon" aria-label="Ton an/aus">🔊</button>
-        <button id="btn-reset" class="link">Fortschritt zurücksetzen</button>
+        <button id="btn-mute" class="btn icon" aria-label="Sound on/off">🔊</button>
+        <button id="btn-reset" class="link">Reset progress</button>
       </div>
     </div>
   </section>
@@ -44,8 +44,8 @@
   <!-- Level-Auswahl -->
   <section id="screen-levels" class="screen">
     <header class="topbar">
-      <button id="btn-back-title" class="btn icon" aria-label="Zurück">‹</button>
-      <h2>Level</h2>
+      <button id="btn-back-title" class="btn icon" aria-label="Back">‹</button>
+      <h2>Levels</h2>
       <div id="total-stars" class="pill"></div>
     </header>
     <div id="level-grid" class="level-grid"></div>
@@ -54,7 +54,7 @@
   <!-- Spiel -->
   <section id="screen-game" class="screen transparent">
     <header class="hud">
-      <button id="btn-quit" class="btn icon" aria-label="Abbrechen">✕</button>
+      <button id="btn-quit" class="btn icon" aria-label="Quit">✕</button>
       <div class="hud-mid">
         <div class="hud-row"><span id="hud-level"></span> · <span id="hud-pizza"></span></div>
         <div class="hud-row strong"><span id="hud-goal"></span> · <span id="hud-cuts"></span></div>
@@ -69,13 +69,13 @@
         <h2 id="res-title">Perfetto!</h2>
         <div id="res-stars"><span>★</span><span>★</span><span>★</span></div>
         <div class="res-grid">
-          <div><small>Genauigkeit</small><b id="res-accuracy">0%</b></div>
-          <div><small>Punkte</small><b id="res-score">0</b><em id="res-bonus"></em></div>
+          <div><small>Accuracy</small><b id="res-accuracy">0%</b></div>
+          <div><small>Score</small><b id="res-score">0</b><em id="res-bonus"></em></div>
         </div>
         <div class="res-buttons">
-          <button id="btn-levels" class="btn ghost">Level</button>
-          <button id="btn-retry" class="btn">Nochmal</button>
-          <button id="btn-next" class="btn primary">Weiter ›</button>
+          <button id="btn-levels" class="btn ghost">Levels</button>
+          <button id="btn-retry" class="btn">Retry</button>
+          <button id="btn-next" class="btn primary">Next ›</button>
         </div>
       </div>
     </div>

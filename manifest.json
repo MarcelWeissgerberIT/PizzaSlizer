@@ -1,13 +1,13 @@
 {
   "name": "Pizza Slizer",
   "short_name": "PizzaSlizer",
-  "description": "Schneide Pizzen exakt in gleiche Stücke – gegen die Zeit.",
+  "description": "Slice pizzas into perfectly equal pieces – against the clock.",
   "start_url": "./index.html",
   "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#3b2214",
   "theme_color": "#3b2214",
-  "lang": "de",
+  "lang": "en",
   "icons": [
     { "src": "assets/ui/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "assets/ui/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

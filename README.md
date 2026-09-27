@@ -1,65 +1,65 @@
 # 🍕 Pizza Slizer
 
-Ein Mobile-Game im Browser: Schneide die Pizza **so exakt wie möglich** in gleich große Stücke – bevor die Zeit abläuft.
+A mobile game for the browser: slice the pizza into **perfectly equal pieces** before the clock runs out.
 
-## Spielprinzip
+## Gameplay
 
-- Wische mit dem Finger quer über die Pizza. Jeder Wisch ist ein gerader Schnitt.
-- Ziel jedes Levels: eine bestimmte Anzahl **gleich großer** Stücke (z. B. 8 Stücke = 4 Schnitte).
-- Nach dem letzten Schnitt werden die tatsächlichen Flächen aller Stücke berechnet. Je gleichmäßiger, desto höher die **Genauigkeit**.
-- Sterne: ★ ab 75 %, ★★ ab 90 %, ★★★ ab 97 % Genauigkeit. Restzeit gibt einen Punktebonus.
-- Zu kurze Wische, Schnitte am Rand oder doppelte Schnitte werden abgelehnt.
+- Swipe your finger across the pizza. Every swipe is one straight cut.
+- Each level asks for a number of **equal-sized** slices (e.g. 8 slices = 4 cuts).
+- After the last cut, the real area of every piece is measured. The more even the pieces, the higher your **accuracy**.
+- Stars: ★ from 75 %, ★★ from 90 %, ★★★ from 97 % accuracy. Remaining time adds a score bonus.
+- Swipes that are too short, too close to the edge or duplicate an existing cut are rejected.
 
-## Level & Pizzen
+## Levels & pizzas
 
-24 Level in 8 Welten, jede Welt mit einer eigenen Pizza:
+24 levels across 8 worlds, each world with its own pizza:
 
-| Welt | Pizza | Besonderheit |
-|------|-------|--------------|
-| 1 | Margherita | Grundlagen, Hilfslinien |
-| 2 | Salami | mehr Stücke |
-| 3 | Funghi | die Pizza **dreht sich** |
-| 4 | Hawaii | kleine Pizzen |
-| 5 | Quattro Formaggi | die Pizza **schwebt** hin und her |
-| 6 | Verdura | Drehung in beide Richtungen |
-| 7 | Diavola | Drehung + Schweben + weniger Zeit |
-| 8 | Dolce | Meisterklasse, bis 16 Stücke |
+| World | Pizza | Twist |
+|-------|-------|-------|
+| 1 | Margherita | basics, guide lines |
+| 2 | Salami | more slices |
+| 3 | Funghi | the pizza **spins** |
+| 4 | Hawaii | small pizzas |
+| 5 | Quattro Formaggi | the pizza **drifts** back and forth |
+| 6 | Veggie | spinning in both directions |
+| 7 | Diavola | spin + drift + less time |
+| 8 | Dolce | master class, up to 16 slices |
 
-Level werden nacheinander freigeschaltet (mindestens 1 Stern). Fortschritt wird lokal im Browser gespeichert.
+Levels unlock one after another (at least 1 star). Progress is stored locally in the browser.
 
-## Starten
+## Run it
 
-Es gibt keinen Build-Schritt – einfach einen statischen Webserver starten:
+There is no build step. Start any static web server:
 
 ```bash
 python3 -m http.server 8080
-# dann http://localhost:8080 im Browser bzw. am Handy im gleichen WLAN öffnen
+# then open http://localhost:8080 in a browser, or on your phone in the same Wi-Fi
 ```
 
-Die App ist als PWA installierbar („Zum Startbildschirm hinzufügen“) und läuft dank Service Worker auch offline.
+The app is installable as a PWA ("Add to Home Screen") and works offline thanks to the service worker.
 
 ## Assets
 
-Alle Grafiken (8 Pizzen, Hintergrund, Logo, Pizzaschneider) wurden mit **OpenArt MCP** (Modell *Nano Banana 2*, text2image) generiert.
-Die Quell-URLs und History-IDs stehen in `tools/asset_sources.json`.
+All artwork (8 pizzas, background, logo, pizza cutter) was generated with **OpenArt MCP** (model *Nano Banana 2*, text2image).
+Source URLs and history IDs are listed in `tools/asset_sources.json`.
 
-Zum Neuverarbeiten (Freistellen, Kreis-Zuschnitt, WebP, Icons):
+To re-process the raw images (background removal, circular crop, WebP, icons):
 
 ```bash
 pip install pillow numpy scipy
 python3 tools/process_assets.py
 ```
 
-## Projektstruktur
+## Project structure
 
 ```
-index.html          Oberfläche (Titel, Level-Auswahl, HUD, Ergebnis)
-css/style.css       Styles (mobile-first, Safe-Area, Touch)
-js/levels.js        Pizza- und Level-Definitionen
-js/audio.js         Synthetisierte Sounds (WebAudio)
-js/game.js          Spiel-Engine: Eingabe, Schnittgeometrie, Bewertung, Rendering
-assets/pizzas/      Freigestellte Pizzen (WebP, 720 px, exakt kreisrund)
-assets/ui/          Hintergrund, Logo, Schneider, App-Icons
-tools/              Asset-Pipeline
+index.html          UI (title, level select, HUD, result)
+css/style.css       styles (mobile-first, safe area, touch)
+js/levels.js        pizza and level definitions
+js/audio.js         synthesized sounds (WebAudio)
+js/game.js          game engine: input, cut geometry, scoring, rendering
+assets/pizzas/      cut-out pizzas (WebP, 720 px, perfectly circular)
+assets/ui/          background, logo, cutter, app icons
+tools/              asset pipeline
 sw.js, manifest.json  PWA
 ```
