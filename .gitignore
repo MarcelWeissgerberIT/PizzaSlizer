@@ -1,0 +1,5 @@
+# Rohbilder aus OpenArt (werden per tools/process_assets.py neu geladen)
+tools/raw/
+node_modules/
+.DS_Store
+__pycache__/

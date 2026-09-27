@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#3b2214">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Pizza Slizer</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="assets/ui/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/ui/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- Ladebildschirm -->
+  <section id="screen-loading" class="screen active">
+    <div class="panel center">
+      <div class="spinner">🍕</div>
+      <div class="load-track"><div id="load-bar"></div></div>
+      <p>Pizza wird belegt …</p>
+    </div>
+  </section>
+
+  <!-- Titel -->
+  <section id="screen-title" class="screen">
+    <div class="title-wrap">
+      <img id="logo" alt="Pizza Slizer" draggable="false">
+      <p class="tagline">Schneide exakt. Schneide schnell.</p>
+      <button id="btn-play" class="btn big">Spielen</button>
+      <div id="title-stars" class="stars-total"></div>
+      <div class="title-footer">
+        <button id="btn-mute" class="btn icon" aria-label="Ton an/aus">🔊</button>
+        <button id="btn-reset" class="link">Fortschritt zurücksetzen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Level-Auswahl -->
+  <section id="screen-levels" class="screen">
+    <header class="topbar">
+      <button id="btn-back-title" class="btn icon" aria-label="Zurück">‹</button>
+      <h2>Level</h2>
+      <div id="total-stars" class="pill"></div>
+    </header>
+    <div id="level-grid" class="level-grid"></div>
+  </section>
+
+  <!-- Spiel -->
+  <section id="screen-game" class="screen transparent">
+    <header class="hud">
+      <button id="btn-quit" class="btn icon" aria-label="Abbrechen">✕</button>
+      <div class="hud-mid">
+        <div class="hud-row"><span id="hud-level"></span> · <span id="hud-pizza"></span></div>
+        <div class="hud-row strong"><span id="hud-goal"></span> · <span id="hud-cuts"></span></div>
+      </div>
+      <div id="timer-text" class="pill"></div>
+    </header>
+    <div class="timer-track"><div id="timer-bar"></div></div>
+    <div id="toast"></div>
+
+    <div id="result" class="result">
+      <div class="panel">
+        <h2 id="res-title">Perfetto!</h2>
+        <div id="res-stars"><span>★</span><span>★</span><span>★</span></div>
+        <div class="res-grid">
+          <div><small>Genauigkeit</small><b id="res-accuracy">0%</b></div>
+          <div><small>Punkte</small><b id="res-score">0</b><em id="res-bonus"></em></div>
+        </div>
+        <div class="res-buttons">
+          <button id="btn-levels" class="btn ghost">Level</button>
+          <button id="btn-retry" class="btn">Nochmal</button>
+          <button id="btn-next" class="btn primary">Weiter ›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/levels.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

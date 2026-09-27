@@ -1,0 +1,24 @@
+{
+  "_note": "Generiert mit OpenArt MCP, Modell Nano Banana 2 (text2image, 1K). historyIds dokumentieren die Generierung.",
+  "pizzas": {
+    "margherita": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496008046_3ffba3c0_1790496008265_5611b109.png",
+    "salami": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496011978_34912eb5_1790496012042_ad4cefb7.png",
+    "funghi": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496011777_75475020_1790496011856_101fa118.png",
+    "hawaii": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496014291_f15cbd5b_1790496014458_f9869eb4.png",
+    "formaggi": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496017287_16cceaf1_1790496017464_812f7166.png",
+    "veggie": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496018789_063e7ff6_1790496019142_bd42905e.png",
+    "diavola": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496022893_cce3fc65_1790496022945_3d95b4dd.png",
+    "dolce": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496024968_0826f0a2_1790496025017_757f3bf0.png"
+  },
+  "ui": {
+    "background": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496030976_389edae0_1790496031127_e2ddd8af.png",
+    "logo": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496031619_6307e517_1790496031707_14921379.png",
+    "cutter": "https://cdn.openart.ai/openart-ai/production/2026-09/create-image/wRD6PTxSzjxZwjWN69MC/image_1790496035191_59a2c89a_1790496035262_a811a0d1.png"
+  },
+  "historyIds": {
+    "margherita": "4Vk2g4ZHclQY53L8i6hr", "salami": "LmKMEV7Ked1V8pF4TV6s", "funghi": "Y81OZ2D8z5JTlTSfyG5g",
+    "hawaii": "BXSJpM9hoFKr2Axuggzx", "formaggi": "tK85SbbCTDu4oV3FX3AC", "veggie": "dXxCx2uGMeg9EmLOuTDv",
+    "diavola": "6aj8j4E0dlafU2HqEXCU", "dolce": "00jUOrNCSdabdrGKrP99",
+    "background": "qnoYetYzfUtHBoOgsu8H", "logo": "uaM8yowRnO6td4AMwysb", "cutter": "20lrxqAg0ZCGQ0dw73HB"
+  }
+}
