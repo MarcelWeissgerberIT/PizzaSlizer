@@ -9,7 +9,8 @@ The game is available in **English** and **German**. It follows the device langu
 ## Gameplay
 
 - Swipe your finger across the pizza. Every swipe is one straight cut.
-- Each level asks for a number of **equal-sized** slices (e.g. 8 slices = 4 cuts).
+- Each level asks for an **exact number of equal-sized** slices (e.g. 8 slices = 4 cuts). The HUD always shows how many pieces you currently have.
+- Cuts that pass close to the center snap onto it (within 10 % of the radius) so the piece count stays exact; the deviation still lowers your accuracy. Cuts that clearly miss the center create extra pieces, and as soon as you have more pieces than required the level ends.
 - After the last cut, the real area of every piece is measured. The more even the pieces, the higher your **accuracy**.
 - Stars: ★ from 75 %, ★★ from 90 %, ★★★ from 97 % accuracy. Remaining time adds a score bonus.
 - Swipes that are too short, too close to the edge or duplicate an existing cut are rejected.

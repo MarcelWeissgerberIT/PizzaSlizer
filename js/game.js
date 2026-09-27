@@ -11,6 +11,9 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
   const TAU = Math.PI * 2;
+  // Schnitte, die die Mitte um höchstens diesen Anteil des Radius verfehlen, rasten auf den Mittelpunkt ein.
+  // So bleibt die Stückzahl exakt; die Abweichung wird trotzdem als Genauigkeitsabzug gewertet.
+  const SNAP_TOLERANCE = 0.10;
 
   // ---------- Fortschritt ----------
   const Progress = {
@@ -185,6 +188,7 @@
       this.timeLeft = this.level.time;
       this.elapsed = 0;
       this.touched = false;
+      this.pieces = 1;
       this.timerRunning = !this.level.waitTouch;
       this.demoT = 0;
       this.pizza = { cx: W / 2, cy: H / 2, R: 100, rot: 0, baseX: W / 2, baseY: H / 2 };
@@ -242,24 +246,29 @@
         const da = Math.abs(((c.a - line.a) + Math.PI / 2 + Math.PI) % Math.PI - Math.PI / 2);
         if (da < 0.04 && Math.abs(Math.abs(c.d) - Math.abs(line.d)) < R * 0.04) { this.reject(t('rejDup')); return; }
       }
+      line.off = Math.abs(line.d) / R;
+      if (line.off <= SNAP_TOLERANCE) line.d = 0;
       this.cuts.push(line);
+      this.pieces = evaluateCuts(this.cuts, R, this.level.slices).regions.length;
       this.flash = 1;
       Sfx.slice();
       if (navigator.vibrate) navigator.vibrate(12);
       updateHud();
       if (this.level.hint2 && this.cuts.length === 1) showHint(this.level.hint2, this.hintParams());
       else if (this.level.demo && this.cuts.length === 1) hideHint();
+      if (this.pieces > this.level.slices) { this.finish(false, true); return; }
       if (this.cuts.length >= this.cutsNeeded) { this.finish(false); return; }
       if (this.level.hints) this.cutFeedback(line, R);
     },
 
     // Kurzes Coaching nach einem Schnitt: Abstand zur Mitte und Winkel zur idealen Aufteilung
     cutFeedback(line, R) {
-      const off = Math.abs(line.d) / R;
+      const off = line.off;
       let msg;
       if (off < 0.03) msg = t('fbCenterPerfect');
       else if (off < 0.08) msg = t('fbCenterGood');
-      else msg = t('fbCenterOff', { p: Math.round(off * 100) });
+      else if (off <= SNAP_TOLERANCE) msg = t('fbCenterOff', { p: Math.round(off * 100) });
+      else msg = t('fbCenterMissed', { p: Math.round(off * 100) });
       if (this.cuts.length >= 2) {
         const m = this.cutsNeeded;
         const a0 = this.cuts[0].a;
@@ -281,12 +290,18 @@
       this.toast(msg, 900);
     },
 
-    finish(timeout) {
+    finish(timeout, tooMany) {
       if (this.state !== 'play') return;
       this.state = 'result';
       const ev = evaluateCuts(this.cuts, this.pizza.R, this.level.slices);
-      const complete = this.cuts.length >= this.cutsNeeded;
-      let accuracy = complete ? ev.accuracy : ev.accuracy * (this.cuts.length / this.cutsNeeded) * 0.6;
+      this.pieces = ev.regions.length;
+      const complete = this.cuts.length >= this.cutsNeeded && this.pieces === this.level.slices;
+      // Eingerastete Schnitte haben gleiche Flächen erzeugt; ihre gemessene Abweichung von der Mitte zählt hier als Abzug
+      const snapped = this.cuts.filter((c) => c.off <= SNAP_TOLERANCE);
+      const meanOff = snapped.length ? snapped.reduce((a, c) => a + c.off, 0) / snapped.length : 0;
+      let accuracy = ev.accuracy * clamp(1 - 1.2 * meanOff, 0, 1);
+      if (tooMany) accuracy = Math.min(accuracy, 0.5) * (this.level.slices / this.pieces);
+      else if (!complete) accuracy = accuracy * (this.cuts.length / this.cutsNeeded) * 0.6;
       let stars = 0;
       if (complete) {
         if (accuracy >= STAR_THRESHOLDS.three) stars = 3;
@@ -295,7 +310,7 @@
       }
       const timeBonus = complete ? Math.round(this.timeLeft * 25) : 0;
       const score = Math.round(accuracy * 1000) + timeBonus * (stars > 0 ? 1 : 0);
-      this.result = { regions: ev.regions, accuracy, stars, score, timeBonus, timeout, complete, offsets: this.cuts.map((c) => Math.abs(c.d) / this.pizza.R) };
+      this.result = { regions: ev.regions, accuracy, stars, score, timeBonus, timeout, complete, tooMany, pieces: this.pieces, offsets: this.cuts.map((c) => c.off) };
       hideHint();
       if (stars > 0) Progress.set(this.levelIndex, this.result);
       this.explode = 0;
@@ -550,8 +565,9 @@
     const lv = Game.level;
     $('#hud-level').textContent = `${t('level')} ${Game.levelIndex + 1}`;
     $('#hud-pizza').textContent = PIZZAS[lv.pizza].name;
-    $('#hud-goal').textContent = t('slices', { n: lv.slices });
+    $('#hud-goal').textContent = t('piecesOf', { a: Game.pieces, b: lv.slices });
     $('#hud-cuts').textContent = t('cutOf', { a: Game.cuts.length, b: Game.cutsNeeded });
+    $('#hud-goal').classList.toggle('over', Game.pieces > lv.slices);
   }
   function showHint(key, params) {
     $('#hint-text').textContent = t(key, params);
@@ -570,12 +586,15 @@
   // ---------- Ergebnis ----------
   function showResult(r) {
     const el = $('#result');
-    $('#res-title').textContent = r.timeout && !r.complete ? t('resTimeout')
+    $('#res-title').textContent = r.tooMany ? t('resTooMany') : r.timeout && !r.complete ? t('resTimeout')
       : r.stars === 3 ? t('resPerfect') : r.stars === 2 ? t('resGreat') : r.stars === 1 ? t('resOk') : t('resBad');
+    const piecesEl = $('#res-pieces');
+    piecesEl.textContent = (r.pieces === Game.level.slices ? '✓ ' : '✗ ') + t('resPieces', { a: r.pieces, b: Game.level.slices });
+    piecesEl.classList.toggle('bad', r.pieces !== Game.level.slices);
     $('#res-accuracy').textContent = (r.accuracy * 100).toFixed(1) + '%';
     $('#res-score').textContent = r.score.toLocaleString(I18N.locale());
     $('#res-bonus').textContent = r.timeBonus ? t('timeBonus', { n: r.timeBonus }) : '';
-    $('#res-tip').textContent = Game.level.hints ? resultTip(r) : '';
+    $('#res-tip').textContent = r.tooMany ? t('tipTooMany', { p: r.pieces, n: Game.level.slices }) : Game.level.hints ? resultTip(r) : '';
     const stars = $$('#res-stars span');
     stars.forEach((s, i) => {
       s.classList.remove('on');

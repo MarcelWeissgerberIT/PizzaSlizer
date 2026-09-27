@@ -159,3 +159,8 @@ body {
 /* Tipp im Ergebnis */
 .res-tip { margin: -6px 0 14px; font-size: 14px; line-height: 1.35; opacity: .85; min-height: 0; }
 .res-tip:empty { display: none; }
+
+/* Stückzahl */
+.hud-row.strong .over { color: #ff6b5a; }
+.res-pieces { font-weight: 700; font-size: 18px; color: var(--green); margin: 2px 0 10px; }
+.res-pieces.bad { color: var(--red); }
