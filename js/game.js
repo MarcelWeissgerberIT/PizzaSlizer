@@ -563,7 +563,8 @@
     const bar = $('#timer-bar');
     bar.style.transform = `scaleX(${frac})`;
     bar.classList.toggle('danger', Game.timeLeft <= 3);
-    $('#timer-text').textContent = Game.timerRunning ? Game.timeLeft.toFixed(1) + 's' : '⏱ ' + t('timerWait');
+    $('#timer-text').textContent = Game.timeLeft.toFixed(1) + 's';
+    $('#timer-text').classList.toggle('waiting', !Game.timerRunning);
   }
 
   // ---------- Ergebnis ----------
