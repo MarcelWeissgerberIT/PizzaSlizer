@@ -1,8 +1,8 @@
 // Einfacher Offline-Cache für Pizza Slizer
-const CACHE = 'pizza-slizer-v1';
+const CACHE = 'pizza-slizer-v2';
 const ASSETS = [
   './', './index.html', './manifest.json',
-  './css/style.css', './js/levels.js', './js/audio.js', './js/game.js',
+  './css/style.css', './js/i18n.js', './js/levels.js', './js/audio.js', './js/game.js',
   './assets/ui/background.jpg', './assets/ui/logo.webp', './assets/ui/cutter.webp',
   './assets/ui/icon-192.png', './assets/ui/icon-512.png',
   './assets/pizzas/margherita.webp', './assets/pizzas/salami.webp', './assets/pizzas/funghi.webp',

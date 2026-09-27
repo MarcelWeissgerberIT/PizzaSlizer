@@ -18,43 +18,60 @@
 <body>
   <canvas id="game"></canvas>
 
-  <!-- Ladebildschirm -->
+  <!-- Loading -->
   <section id="screen-loading" class="screen active">
     <div class="panel center">
       <div class="spinner">🍕</div>
       <div class="load-track"><div id="load-bar"></div></div>
-      <p>Topping the pizza …</p>
+      <p data-i18n="loading">Topping the pizza …</p>
     </div>
   </section>
 
-  <!-- Titel -->
+  <!-- Title -->
   <section id="screen-title" class="screen">
+    <button id="btn-lang" class="btn lang" aria-label="Language">🌐 English</button>
     <div class="title-wrap">
       <img id="logo" alt="Pizza Slizer" draggable="false">
-      <p class="tagline">Slice precisely. Slice fast.</p>
-      <button id="btn-play" class="btn big">Play</button>
+      <p class="tagline" data-i18n="tagline">Slice precisely. Slice fast.</p>
+      <button id="btn-play" class="btn big" data-i18n="play">Play</button>
+      <button id="btn-help" class="btn ghost" data-i18n="howto">How to play</button>
       <div id="title-stars" class="stars-total"></div>
       <div class="title-footer">
-        <button id="btn-mute" class="btn icon" aria-label="Sound on/off">🔊</button>
-        <button id="btn-reset" class="link">Reset progress</button>
+        <button id="btn-mute" class="btn icon" data-i18n-aria="sound" aria-label="Sound on/off">🔊</button>
+        <button id="btn-reset" class="link" data-i18n="reset">Reset progress</button>
       </div>
     </div>
   </section>
 
-  <!-- Level-Auswahl -->
+  <!-- How to play -->
+  <section id="screen-help" class="screen">
+    <div class="panel help-panel">
+      <h2 data-i18n="helpTitle">How to play</h2>
+      <ol class="help-steps">
+        <li><span class="help-icon">👆</span><div><b data-i18n="help1t"></b><p data-i18n="help1d"></p></div></li>
+        <li><span class="help-icon">🍕</span><div><b data-i18n="help2t"></b><p data-i18n="help2d"></p></div></li>
+        <li><span class="help-icon">⏱️</span><div><b data-i18n="help3t"></b><p data-i18n="help3d"></p></div></li>
+        <li><span class="help-icon">⭐</span><div><b data-i18n="help4t"></b><p data-i18n="help4d"></p></div></li>
+      </ol>
+      <button id="btn-help-close" class="btn primary" data-i18n="helpClose">Got it!</button>
+    </div>
+  </section>
+
+  <!-- Level select -->
   <section id="screen-levels" class="screen">
     <header class="topbar">
-      <button id="btn-back-title" class="btn icon" aria-label="Back">‹</button>
-      <h2>Levels</h2>
+      <button id="btn-back-title" class="btn icon" data-i18n-aria="back" aria-label="Back">‹</button>
+      <h2 data-i18n="levels">Levels</h2>
+      <button id="btn-help2" class="btn icon" data-i18n-aria="howto" aria-label="How to play">?</button>
       <div id="total-stars" class="pill"></div>
     </header>
     <div id="level-grid" class="level-grid"></div>
   </section>
 
-  <!-- Spiel -->
+  <!-- Game -->
   <section id="screen-game" class="screen transparent">
     <header class="hud">
-      <button id="btn-quit" class="btn icon" aria-label="Quit">✕</button>
+      <button id="btn-quit" class="btn icon" data-i18n-aria="quit" aria-label="Quit">✕</button>
       <div class="hud-mid">
         <div class="hud-row"><span id="hud-level"></span> · <span id="hud-pizza"></span></div>
         <div class="hud-row strong"><span id="hud-goal"></span> · <span id="hud-cuts"></span></div>
@@ -63,24 +80,27 @@
     </header>
     <div class="timer-track"><div id="timer-bar"></div></div>
     <div id="toast"></div>
+    <div id="hint" class="hint"><span class="hint-icon">💡</span><span id="hint-text"></span></div>
 
     <div id="result" class="result">
       <div class="panel">
         <h2 id="res-title">Perfetto!</h2>
         <div id="res-stars"><span>★</span><span>★</span><span>★</span></div>
         <div class="res-grid">
-          <div><small>Accuracy</small><b id="res-accuracy">0%</b></div>
-          <div><small>Score</small><b id="res-score">0</b><em id="res-bonus"></em></div>
+          <div><small data-i18n="accuracy">Accuracy</small><b id="res-accuracy">0%</b></div>
+          <div><small data-i18n="score">Score</small><b id="res-score">0</b><em id="res-bonus"></em></div>
         </div>
+        <p id="res-tip" class="res-tip"></p>
         <div class="res-buttons">
-          <button id="btn-levels" class="btn ghost">Levels</button>
-          <button id="btn-retry" class="btn">Retry</button>
-          <button id="btn-next" class="btn primary">Next ›</button>
+          <button id="btn-levels" class="btn ghost" data-i18n="levels">Levels</button>
+          <button id="btn-retry" class="btn" data-i18n="retry">Retry</button>
+          <button id="btn-next" class="btn primary" data-i18n="next">Next ›</button>
         </div>
       </div>
     </div>
   </section>
 
+  <script src="js/i18n.js"></script>
   <script src="js/levels.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/game.js"></script>

@@ -20,29 +20,35 @@ const PIZZAS = {
 //  rotate  – Drehgeschwindigkeit der Pizza in rad/s (0 = still)
 //  drift   – Pizza schwebt hin und her (Amplitude in Vielfachen von 18 px)
 //  scale   – relative Größe der Pizza (1 = normal)
+//  Tutorial-Hilfen:
+//  hints      – Feedback nach jedem Schnitt (Mitte/Winkel) und Tipp im Ergebnis
+//  centerMark – Fadenkreuz in der Pizzamitte anzeigen
+//  demo       – animierter Beispiel-Wisch bis zur ersten Berührung
+//  waitTouch  – Zeit läuft erst ab der ersten Berührung
+//  hint       – Schlüssel des Hinweistextes beim Start (hint2: nach dem ersten Schnitt)
 const LEVELS = [
-  // Welt 1 – Margherita: Grundlagen
-  { pizza: 'margherita', slices: 2,  time: 10, guides: true },
-  { pizza: 'margherita', slices: 4,  time: 12, guides: true },
-  { pizza: 'margherita', slices: 4,  time: 9,  guides: false },
+  // Welt 1 – Margherita: Grundlagen (Tutorial)
+  { pizza: 'margherita', slices: 2,  time: 12, guides: true,  hints: true, centerMark: true, demo: true, waitTouch: true, hint: 'hintL1a' },
+  { pizza: 'margherita', slices: 4,  time: 14, guides: true,  hints: true, centerMark: true, waitTouch: true, hint: 'hintL2a', hint2: 'hintL2b' },
+  { pizza: 'margherita', slices: 4,  time: 10, guides: false, hints: true, centerMark: true, hint: 'hintL3a' },
 
   // Welt 2 – Salami: mehr Stücke
-  { pizza: 'salami', slices: 4,  time: 10, guides: true },
-  { pizza: 'salami', slices: 6,  time: 14, guides: true },
-  { pizza: 'salami', slices: 6,  time: 11, guides: false },
+  { pizza: 'salami', slices: 4,  time: 10, guides: true,  hints: true },
+  { pizza: 'salami', slices: 6,  time: 14, guides: true,  hints: true, hint: 'hintL4a' },
+  { pizza: 'salami', slices: 6,  time: 11, guides: false, hints: true },
 
   // Welt 3 – Funghi: die Pizza dreht sich
-  { pizza: 'funghi', slices: 6,  time: 13, guides: false, rotate: 0.18 },
+  { pizza: 'funghi', slices: 6,  time: 13, guides: false, rotate: 0.18, hint: 'hintRotate' },
   { pizza: 'funghi', slices: 8,  time: 16, guides: true,  rotate: 0.22 },
   { pizza: 'funghi', slices: 8,  time: 14, guides: false, rotate: 0.3 },
 
   // Welt 4 – Hawaii: kleine Pizzen
-  { pizza: 'hawaii', slices: 4,  time: 8,  guides: false, scale: 0.72 },
+  { pizza: 'hawaii', slices: 4,  time: 8,  guides: false, scale: 0.72, hint: 'hintSmall' },
   { pizza: 'hawaii', slices: 8,  time: 14, guides: false, scale: 0.8 },
   { pizza: 'hawaii', slices: 10, time: 18, guides: true,  scale: 0.85 },
 
   // Welt 5 – Quattro Formaggi: schwebende Pizza
-  { pizza: 'formaggi', slices: 6,  time: 12, guides: false, drift: 1 },
+  { pizza: 'formaggi', slices: 6,  time: 12, guides: false, drift: 1, hint: 'hintDrift' },
   { pizza: 'formaggi', slices: 8,  time: 14, guides: false, drift: 1.2 },
   { pizza: 'formaggi', slices: 10, time: 18, guides: false, drift: 1.6 },
 

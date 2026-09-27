@@ -2,6 +2,10 @@
 
 A mobile game for the browser: slice the pizza into **perfectly equal pieces** before the clock runs out.
 
+## Languages
+
+The game is available in **English** and **German**. It follows the device language and can be switched with the 🌐 button on the title screen.
+
 ## Gameplay
 
 - Swipe your finger across the pizza. Every swipe is one straight cut.
@@ -16,7 +20,7 @@ A mobile game for the browser: slice the pizza into **perfectly equal pieces** b
 
 | World | Pizza | Twist |
 |-------|-------|-------|
-| 1 | Margherita | basics, guide lines |
+| 1 | Margherita | guided tutorial: demo swipe, center marker, cut feedback, timer starts on touch |
 | 2 | Salami | more slices |
 | 3 | Funghi | the pizza **spins** |
 | 4 | Hawaii | small pizzas |
@@ -60,6 +64,7 @@ python3 tools/process_assets.py
 ```
 index.html          UI (title, level select, HUD, result)
 css/style.css       styles (mobile-first, safe area, touch)
+js/i18n.js          English/German strings
 js/levels.js        pizza and level definitions
 js/audio.js         synthesized sounds (WebAudio)
 js/game.js          game engine: input, cut geometry, scoring, rendering

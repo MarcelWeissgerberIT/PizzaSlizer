@@ -184,6 +184,9 @@
       this.lastTick = -1;
       this.timeLeft = this.level.time;
       this.elapsed = 0;
+      this.touched = false;
+      this.timerRunning = !this.level.waitTouch;
+      this.demoT = 0;
       this.pizza = { cx: W / 2, cy: H / 2, R: 100, rot: 0, baseX: W / 2, baseY: H / 2 };
       this.layout();
       this.state = 'play';
@@ -191,15 +194,13 @@
       updateHud();
       showScreen('screen-game');
       $('#result').classList.remove('show');
-      if (index === 0 && Progress.get(0).stars === 0) {
-        this.toast('Swipe across the pizza – right through the center!', 3200);
-      } else if (this.level.rotate && !this.seenRotate) {
-        this.seenRotate = true;
-        this.toast('Watch out, the pizza is spinning!', 2200);
-      } else if (this.level.drift && !this.seenDrift) {
-        this.seenDrift = true;
-        this.toast('The pizza is drifting – stay on it!', 2200);
-      }
+      $('#toast').classList.remove('show');
+      if (this.level.hint) showHint(this.level.hint, this.hintParams()); else hideHint();
+    },
+
+    hintParams() {
+      const m = this.cutsNeeded;
+      return { n: this.level.slices, c: m, a: Math.round(180 / m) };
     },
 
     toast(text, ms) {
@@ -229,24 +230,49 @@
       const A = dx * dx + dy * dy;
       const C = a.x * a.x + a.y * a.y - R * R;
       const disc = fa * fa - A * C;
-      if (disc <= 0) { this.reject('Missed!'); return; }
+      if (disc <= 0) { this.reject(t('rejMissed')); return; }
       const sq = Math.sqrt(disc);
       const t1 = (-fa - sq) / A, t2 = (-fa + sq) / A;
       const covered = clamp(Math.min(1, t2) - Math.max(0, t1), 0, t2 - t1) / (t2 - t1);
-      if (covered < 0.72) { this.reject('Swipe all the way through!'); return; }
+      if (covered < 0.72) { this.reject(t('rejShort')); return; }
       const line = lineFromPoints(a, b);
-      if (Math.abs(line.d) > R * 0.9) { this.reject('Too close to the edge!'); return; }
+      if (Math.abs(line.d) > R * 0.9) { this.reject(t('rejEdge')); return; }
       // Nahezu identische Schnitte nicht doppelt zählen
       for (const c of this.cuts) {
         const da = Math.abs(((c.a - line.a) + Math.PI / 2 + Math.PI) % Math.PI - Math.PI / 2);
-        if (da < 0.04 && Math.abs(Math.abs(c.d) - Math.abs(line.d)) < R * 0.04) { this.reject('Already cut there!'); return; }
+        if (da < 0.04 && Math.abs(Math.abs(c.d) - Math.abs(line.d)) < R * 0.04) { this.reject(t('rejDup')); return; }
       }
       this.cuts.push(line);
       this.flash = 1;
       Sfx.slice();
       if (navigator.vibrate) navigator.vibrate(12);
       updateHud();
-      if (this.cuts.length >= this.cutsNeeded) this.finish(false);
+      if (this.level.hint2 && this.cuts.length === 1) showHint(this.level.hint2, this.hintParams());
+      else if (this.level.demo && this.cuts.length === 1) hideHint();
+      if (this.cuts.length >= this.cutsNeeded) { this.finish(false); return; }
+      if (this.level.hints) this.cutFeedback(line, R);
+    },
+
+    // Kurzes Coaching nach einem Schnitt: Abstand zur Mitte und Winkel zur idealen Aufteilung
+    cutFeedback(line, R) {
+      const off = Math.abs(line.d) / R;
+      let msg;
+      if (off < 0.03) msg = t('fbCenterPerfect');
+      else if (off < 0.08) msg = t('fbCenterGood');
+      else msg = t('fbCenterOff', { p: Math.round(off * 100) });
+      if (this.cuts.length >= 2) {
+        const m = this.cutsNeeded;
+        const a0 = this.cuts[0].a;
+        let best = Math.PI;
+        for (let k = 1; k < m; k++) {
+          const ideal = a0 + (Math.PI / m) * k;
+          let d = Math.abs(((line.a - ideal) % Math.PI + Math.PI * 1.5) % Math.PI - Math.PI / 2);
+          best = Math.min(best, d);
+        }
+        const deg = Math.round(best * 180 / Math.PI);
+        msg += ' ' + (deg <= 2 ? t('fbAnglePerfect') : deg <= 6 ? t('fbAngleGood', { d: deg }) : t('fbAngleOff', { d: deg }));
+      }
+      this.toast(msg, 1600);
     },
 
     reject(msg) {
@@ -269,7 +295,8 @@
       }
       const timeBonus = complete ? Math.round(this.timeLeft * 25) : 0;
       const score = Math.round(accuracy * 1000) + timeBonus * (stars > 0 ? 1 : 0);
-      this.result = { regions: ev.regions, accuracy, stars, score, timeBonus, timeout, complete };
+      this.result = { regions: ev.regions, accuracy, stars, score, timeBonus, timeout, complete, offsets: this.cuts.map((c) => Math.abs(c.d) / this.pizza.R) };
+      hideHint();
       if (stars > 0) Progress.set(this.levelIndex, this.result);
       this.explode = 0;
       setTimeout(() => showResult(this.result), 900);
@@ -281,7 +308,8 @@
       const t = this.elapsed;
       if (this.state === 'play') {
         this.elapsed += dt;
-        this.timeLeft -= dt;
+        this.demoT += dt;
+        if (this.timerRunning) this.timeLeft -= dt;
         if (this.timeLeft <= 3 && this.timeLeft > 0) {
           const sec = Math.ceil(this.timeLeft);
           if (sec !== this.lastTick) { this.lastTick = sec; Sfx.tick(); }
@@ -335,6 +363,9 @@
       }
       this.drawGuides(pz.R);
       ctx.restore();
+
+      if (this.state === 'play' && this.level.centerMark) this.drawCenterMark(pz);
+      if (this.state === 'play' && this.level.demo && !this.touched && this.cuts.length === 0) this.drawDemoSwipe(pz);
 
       // Aufblitzen nach Schnitt
       if (this.flash > 0) {
@@ -409,6 +440,66 @@
       }
     },
 
+    drawCenterMark(pz) {
+      const pulse = 1 + Math.sin(this.elapsed * 4) * 0.12;
+      ctx.save();
+      ctx.translate(pz.cx, pz.cy);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = 'rgba(40,15,5,0.7)';
+      ctx.beginPath(); ctx.arc(0, 0, 11 * pulse, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+      ctx.beginPath(); ctx.arc(0, 0, 9 * pulse, 0, TAU); ctx.stroke();
+      ctx.beginPath();
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { ctx.moveTo(dx * 13, dy * 13); ctx.lineTo(dx * 22, dy * 22); }
+      ctx.stroke();
+      ctx.restore();
+    },
+
+    // Animierter Beispiel-Wisch: Linie durch die Mitte, Schneider fährt entlang
+    drawDemoSwipe(pz) {
+      const R = pz.R;
+      const period = 2.4, sweep = 1.5;
+      const u = (this.demoT % period) / sweep;
+      const x0 = pz.cx - R * 1.25, x1 = pz.cx + R * 1.25, y = pz.cy;
+      ctx.save();
+      ctx.setLineDash([10, 10]);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+      ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+      ctx.setLineDash([]);
+      // Pfeilspitze
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.beginPath(); ctx.moveTo(x1 + 12, y); ctx.lineTo(x1 - 6, y - 9); ctx.lineTo(x1 - 6, y + 9); ctx.closePath(); ctx.fill();
+      if (u <= 1) {
+        const e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+        const x = lerp(x0, x1, e);
+        // Spur hinter dem Schneider
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+        ctx.beginPath(); ctx.moveTo(Math.max(x0, x - R * 0.6), y); ctx.lineTo(x, y); ctx.stroke();
+        // Fingerkreis
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath(); ctx.arc(x, y, 22, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath(); ctx.arc(x, y, 9, 0, TAU); ctx.fill();
+        this.drawCutter(x, y, 0);
+      }
+      ctx.restore();
+    },
+
+    drawCutter(x, y, ang) {
+      if (!images.cutter) return;
+      const size = Math.min(W, H) * 0.22;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(ang + Math.PI / 4);
+      ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 6;
+      // Bild: Rad unten links, Griff oben rechts -> Rad am Fingerpunkt ausrichten
+      ctx.drawImage(images.cutter, -size * 0.22, -size * 0.78, size, size);
+      ctx.restore();
+    },
+
     drawTrail() {
       if (this.trail.length < 2) return;
       const now = performance.now();
@@ -423,18 +514,10 @@
         ctx.stroke();
       }
       // Pizzaschneider am Finger
-      if (this.pointerDown && images.cutter) {
+      if (this.pointerDown) {
         const q = this.trail[this.trail.length - 1];
         const p = this.trail[Math.max(0, this.trail.length - 4)];
-        const ang = Math.atan2(q.y - p.y, q.x - p.x);
-        const size = Math.min(W, H) * 0.22;
-        ctx.save();
-        ctx.translate(q.x, q.y);
-        ctx.rotate(ang + Math.PI / 4);
-        ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 6;
-        // Bild: Rad unten links, Griff oben rechts -> Rad am Fingerpunkt ausrichten
-        ctx.drawImage(images.cutter, -size * 0.22, -size * 0.78, size, size);
-        ctx.restore();
+        this.drawCutter(q.x, q.y, Math.atan2(q.y - p.y, q.x - p.x));
       }
       ctx.restore();
     },
@@ -465,27 +548,33 @@
   // ---------- HUD ----------
   function updateHud() {
     const lv = Game.level;
-    $('#hud-level').textContent = `Level ${Game.levelIndex + 1}`;
+    $('#hud-level').textContent = `${t('level')} ${Game.levelIndex + 1}`;
     $('#hud-pizza').textContent = PIZZAS[lv.pizza].name;
-    $('#hud-goal').textContent = `${lv.slices} slices`;
-    $('#hud-cuts').textContent = `Cut ${Game.cuts.length}/${Game.cutsNeeded}`;
+    $('#hud-goal').textContent = t('slices', { n: lv.slices });
+    $('#hud-cuts').textContent = t('cutOf', { a: Game.cuts.length, b: Game.cutsNeeded });
   }
+  function showHint(key, params) {
+    $('#hint-text').textContent = t(key, params);
+    $('#hint').classList.add('show');
+  }
+  function hideHint() { $('#hint').classList.remove('show'); }
   function updateTimer() {
     const frac = clamp(Game.timeLeft / Game.level.time, 0, 1);
     const bar = $('#timer-bar');
     bar.style.transform = `scaleX(${frac})`;
     bar.classList.toggle('danger', Game.timeLeft <= 3);
-    $('#timer-text').textContent = Game.timeLeft.toFixed(1) + 's';
+    $('#timer-text').textContent = Game.timerRunning ? Game.timeLeft.toFixed(1) + 's' : '⏱ ' + t('timerWait');
   }
 
   // ---------- Ergebnis ----------
   function showResult(r) {
     const el = $('#result');
-    $('#res-title').textContent = r.timeout && !r.complete ? 'Time\'s up!'
-      : r.stars === 3 ? 'Perfetto!' : r.stars === 2 ? 'Bravo!' : r.stars === 1 ? 'Nice cut!' : 'Too uneven!';
+    $('#res-title').textContent = r.timeout && !r.complete ? t('resTimeout')
+      : r.stars === 3 ? t('resPerfect') : r.stars === 2 ? t('resGreat') : r.stars === 1 ? t('resOk') : t('resBad');
     $('#res-accuracy').textContent = (r.accuracy * 100).toFixed(1) + '%';
-    $('#res-score').textContent = r.score.toLocaleString('en-US');
-    $('#res-bonus').textContent = r.timeBonus ? `+${r.timeBonus} time bonus` : '';
+    $('#res-score').textContent = r.score.toLocaleString(I18N.locale());
+    $('#res-bonus').textContent = r.timeBonus ? t('timeBonus', { n: r.timeBonus }) : '';
+    $('#res-tip').textContent = Game.level.hints ? resultTip(r) : '';
     const stars = $$('#res-stars span');
     stars.forEach((s, i) => {
       s.classList.remove('on');
@@ -495,6 +584,16 @@
     const hasNext = Game.levelIndex + 1 < LEVELS.length;
     next.style.display = r.stars > 0 && hasNext ? '' : 'none';
     el.classList.add('show');
+  }
+
+  // Passender Tipp für Tutorial-Level
+  function resultTip(r) {
+    const c = Game.cutsNeeded, n = Game.level.slices;
+    if (!r.complete) return r.timeout && Game.cuts.length === 0 ? t('tipTimeout', { c }) : t('tipIncomplete', { a: Game.cuts.length, c });
+    if (r.accuracy >= STAR_THRESHOLDS.two) return t('tipGreat');
+    const worstOffset = Math.max(...r.offsets);
+    if (worstOffset > 0.06 || c === 1) return t('tipCenter');
+    return t('tipAngle', { n, a: Math.round(180 / c) });
   }
 
   // ---------- Level-Auswahl ----------
@@ -524,7 +623,7 @@
       card.disabled = !unlocked;
       card.innerHTML = `
         <div class="num">${i + 1}</div>
-        <div class="meta">${lv.slices} slices · ${lv.time}s</div>
+        <div class="meta">${t('slices', { n: lv.slices })} · ${lv.time}s</div>
         <div class="stars">${'★'.repeat(p.stars)}${'☆'.repeat(3 - p.stars)}</div>
         ${lv.rotate ? '<div class="tag">↻</div>' : ''}${lv.drift ? '<div class="tag">〰</div>' : ''}
         ${unlocked ? '' : '<div class="lock">🔒</div>'}`;
@@ -547,6 +646,8 @@
     canvas.setPointerCapture(e.pointerId);
     strokeStart = pointerPos(e);
     Game.trail = [strokeStart];
+    Game.touched = true;
+    if (!Game.timerRunning) { Game.timerRunning = true; updateTimer(); }
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!Game.pointerDown || e.pointerId !== Game.pointerId) return;
@@ -573,8 +674,22 @@
     $('#btn-next').addEventListener('click', () => { Sfx.tap(); Game.start(Game.levelIndex + 1); });
     $('#btn-levels').addEventListener('click', () => { Sfx.tap(); leaveGame(); });
     $('#btn-reset').addEventListener('click', () => {
-      if (confirm('Really delete all progress?')) { Progress.reset(); buildLevelGrid(); updateTitleStars(); }
+      if (confirm(t('resetConfirm'))) { Progress.reset(); buildLevelGrid(); updateTitleStars(); }
     });
+    const langBtn = $('#btn-lang');
+    const syncLang = () => { langBtn.textContent = '🌐 ' + t('langName'); };
+    langBtn.addEventListener('click', () => {
+      Sfx.tap();
+      I18N.toggle();
+      syncLang(); updateTitleStars();
+      if ($('#screen-levels').classList.contains('active')) buildLevelGrid();
+    });
+    syncLang();
+    let helpReturn = 'screen-title';
+    const openHelp = () => { Sfx.tap(); helpReturn = $('.screen.active').id; showScreen('screen-help'); };
+    $('#btn-help').addEventListener('click', openHelp);
+    $('#btn-help2').addEventListener('click', openHelp);
+    $('#btn-help-close').addEventListener('click', () => { Sfx.tap(); showScreen(helpReturn); });
     const mute = $('#btn-mute');
     const syncMute = () => { mute.textContent = Sfx.isMuted() ? '🔇' : '🔊'; };
     mute.addEventListener('click', () => { Sfx.toggleMute(); syncMute(); });
@@ -582,6 +697,7 @@
   }
   function leaveGame() {
     Game.state = null;
+    hideHint();
     Game.pointerDown = false;
     ctx.clearRect(0, 0, W, H);
     buildLevelGrid();
@@ -605,6 +721,7 @@
   // ---------- Start ----------
   async function init() {
     Progress.load();
+    I18N.apply();
     resize();
     bindUi();
     const bar = $('#load-bar');
